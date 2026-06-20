@@ -1,0 +1,21 @@
+{
+  "name": "btwits",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Vishal Rathod",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+    
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "mongoose": "^9.7.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
