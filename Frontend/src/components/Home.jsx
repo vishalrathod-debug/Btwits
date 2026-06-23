@@ -83,7 +83,7 @@ export default function HomePage() {
             onClick={handleLogout}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold shadow-xs transition-all hover:bg-gray-50 hover:text-red-600 active:scale-98"
           >
-            Sign Out
+            Log Out
           </button>
         </div>
       </aside>
@@ -100,7 +100,7 @@ export default function HomePage() {
             <h1 className="text-lg font-bold tracking-tight">Dashboard Overview</h1>
           </div>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white uppercase">
-            {userEmail.charAt(0)}
+            {user.username.charAt(0)}
           </div>
         </header>
 
@@ -109,7 +109,7 @@ export default function HomePage() {
           
           {/* Welcome Banner */}
           <div className="rounded-2xl bg-linear-to-br from-blue-600 to-indigo-700 p-6 text-white shadow-md md:p-8">
-            <h2 className="text-2xl font-bold md:text-3xl">Welcome back to Btwits!</h2>
+            <h2 className="text-2xl font-bold md:text-3xl">Welcome back to Btwits! {user?.username}</h2>
             <p className="mt-2 text-sm text-blue-100 max-w-xl">
               Your platform metrics are stable. You have 4 pending design reviews and 2 API deployment notifications waiting.
             </p>

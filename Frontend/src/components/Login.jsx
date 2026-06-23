@@ -6,25 +6,29 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
+
     try {
       const res = await loginUser({
         email: data.email,
         password: data.password,
       });
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id: res.id,
-        }),
-      );
-      navigate("/");
+
+      // ✅ success
+      if (res.status === 1) {
+        localStorage.setItem("user", JSON.stringify({ id: res.id }));
+
+        navigate("/");
+      }
     } catch (error) {
-      console.error(error);
+      // ❌ THIS is where "User not found" comes
+      const message = error.response?.data?.message || "Something went wrong";
+
+      alert(message); // 👈 THIS shows "User not found"
     }
   };
-
   return (
     <div className="justify-center flex min-h-screen bg-gray-50 text-gray-900">
       {/* Left Column: Form Container */}
