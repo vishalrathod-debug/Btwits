@@ -19,7 +19,7 @@ const startServer = async () => {
         await dbConnection();
 
         app.listen(process.env.PORT || 3000, () => {
-            console.log("Server is running on:", process.env.PORT);
+            console.log("Server is running on:", process.env.PORT || 3000);
         });
 
     } catch (error) {
