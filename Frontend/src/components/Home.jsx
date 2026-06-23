@@ -45,7 +45,6 @@ export default function HomePage() {
     navigate("/login");
   };
 
-  const userEmail = user?.email || "User";
 
 
   return (
