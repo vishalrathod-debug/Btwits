@@ -1,49 +1,59 @@
+const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
+const bcrypt = require("bcrypt")
 
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // 1. Validation
         if (!email || !password) {
             return res.status(400).json({
-                message: "All fields are required"
+                message: "All fields are required",
             });
         }
 
-        // 2. Find user
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({
-                message: "No user found"
-            });
-        }
-
-        // 3. Check password
-        if (user.password !== password) {
             return res.status(400).json({
-                message: "Wrong password"
+                message: "Invalid email or password",
             });
         }
 
-        // 4. Remove password
-        const userData = user.toObject();
-        delete userData.password;
+        const isMatch = await bcrypt.compare(password, user.password);
 
-        // 5. Success
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Invalid email or password",
+            });
+        }
+
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET not defined");
+        }
+
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
         return res.status(200).json({
             message: "Login successful",
             status: 1,
-            user: userData
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            },
         });
 
     } catch (error) {
         console.log("Login Error:", error);
         return res.status(500).json({
-            message: "Server error"
+            message: "Server error",
         });
     }
 };
-
-module.exports = { loginUser };
+module.exports ={loginUser}

@@ -1,34 +1,25 @@
 
-import {  useState } from "react";
-import { useNavigate } from "react-router-dom";
-import useUser from "../context/useUser";
+import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 
 
-export default function HomePage() {
+
+function Home() {
 
   const navigate = useNavigate();
+  const[user,setUser] = useState(null)
+  
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-
-  const { user, logout } = useUser();
-
-  console.log(user?.email);
-
-  
-  
-  if (!user) {
-  navigate("/login");
-  return null;
-  }
-
   const handleLogout = () => {
-    logout()
+    
     navigate("/login");
   };
 
 
 
   return (
+    
     <div className="flex h-screen bg-gray-50 text-gray-900">
       
       {/* Sidebar - Collapsible on Mobile */}
@@ -51,14 +42,14 @@ export default function HomePage() {
           <a href="#" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">
             Projects
           </a>
-          <a href="#" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">
-            Settings
-          </a>
+          <NavLink to={"/profile"} className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+            Profile
+          </NavLink>
         </nav>
 
         {/* User Footer inside Sidebar */}
         <div className="border-t border-gray-100 pt-4">
-          <div className="mb-4 truncate text-xs font-medium text-gray-500">{user.email}</div>
+          <div className="mb-4 truncate text-xs font-medium text-gray-500">{user?.email}</div>
           <button 
             onClick={handleLogout}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold shadow-xs transition-all hover:bg-gray-50 hover:text-red-600 active:scale-98"
@@ -79,7 +70,7 @@ export default function HomePage() {
             </button>
             <h1 className="text-lg font-bold tracking-tight">Dashboard Overview</h1>
           </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white uppercase">
+          <div onClick={()=>navigate("/profile")} className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white uppercase">
             {user?.username?.charAt(0)}
           </div>
         </header>
@@ -143,3 +134,4 @@ export default function HomePage() {
     </div>
   );
 }
+export default Home

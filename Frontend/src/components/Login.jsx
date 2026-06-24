@@ -1,17 +1,17 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
-import useUser from "../context/useUser";
+// import useUser from "../context/useUser";
 
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const { user,setUser } = useUser();
+  // const { user, setUser } = useUser();
 
-  if (user) {
-  return <Navigate to="/" />;
-  }
-  
+  // if (user) {
+  //   return <Navigate to="/" />;
+  // }
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,11 +27,10 @@ export default function Login() {
 
       // ✅ success
       if (res.status === 1) {
-        localStorage.setItem("user", JSON.stringify({ id: res.id }));
-      
+        localStorage.setItem("token", res.token);
+
+        // setUser(res.user);   
         navigate("/");
-        console.log(res)
-        setUser(res.user)
       }
     } catch (error) {
       // ❌ THIS is where "User not found" comes

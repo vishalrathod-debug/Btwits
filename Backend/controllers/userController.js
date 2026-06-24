@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const bcrypt = require("bcrypt")
 
 const registerUser = async (req, res) => {
     
@@ -22,22 +23,23 @@ const registerUser = async (req, res) => {
                 message: "User already exists"
             });
         }
-
+        const hashPassword = await bcrypt.hash(password,10)
         // 3. Create user
         const user = await User.create({
             username,
             email,
-            password   // ⚠️ plain for now (you'll hash later)
+            password:hashPassword  
         });
 
         // 4. Send response (DON'T send password)
         res.status(201).json({
             message: "User registered successfully",
-            user: {
-                id: user._id,
-                username: user.username,
-                email: user.email
-            }
+            status:1,
+            // user: {
+            //     id: user._id,
+            //     username: user.username,
+            //     email: user.email
+            // }
         });
 
     } catch (error) {
