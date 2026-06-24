@@ -5,7 +5,7 @@ const loginUser = async (req, res) => {
         const { email, password } = req.body;
 
         // 1. Validation
-        if (! email || !password) {
+        if (!email || !password) {
             return res.status(400).json({
                 message: "All fields are required"
             });
@@ -27,11 +27,15 @@ const loginUser = async (req, res) => {
             });
         }
 
-        // 4. Success
+        // 4. Remove password
+        const userData = user.toObject();
+        delete userData.password;
+
+        // 5. Success
         return res.status(200).json({
             message: "Login successful",
             status: 1,
-            id: user._id
+            user: userData
         });
 
     } catch (error) {
@@ -42,4 +46,4 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = {loginUser};
+module.exports = { loginUser };

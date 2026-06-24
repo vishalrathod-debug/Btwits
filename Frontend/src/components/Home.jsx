@@ -1,47 +1,28 @@
 
-
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUser } from "../services/api";
+import useUser from "../context/useUser";
+
 
 export default function HomePage() {
 
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Grab the email passed from the login page, fallback to a default if empty
-  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-  const storedUser = localStorage.getItem("user");
+  const { user, logout } = useUser();
 
-  if (!storedUser) {
-    navigate("/login");
-    return;
-  }
+  console.log(user?.email);
 
-  const parsedUser = JSON.parse(storedUser);
-  const id = parsedUser.id;
-
-  const fetchData = async () => {
-    try {
-      const res = await getUser(id);
-      setUser(res);
-    } catch (error) {
-      console.error(error)
-    }
-  };
-
-  if (id) {
-    fetchData();
-  }
-}, []);
   
   
-  if (!user) return null;
+  if (!user) {
+  navigate("/login");
+  return null;
+  }
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    logout()
     navigate("/login");
   };
 
@@ -99,7 +80,7 @@ export default function HomePage() {
             <h1 className="text-lg font-bold tracking-tight">Dashboard Overview</h1>
           </div>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white uppercase">
-            {user.username.charAt(0)}
+            {user?.username?.charAt(0)}
           </div>
         </header>
 

@@ -5,11 +5,19 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import Home from './components/Home';
 import Register from './components/Register';
 import Login from './components/Login';
+import { UserProvider } from './context/UserContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element:<Home></Home>
+    element:<ProtectedRoute></ProtectedRoute>,
+    children:[
+      {
+        path: "/",
+        element: <Home/>
+      }
+    ]
   },
   {
     path:"/login",
@@ -23,6 +31,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <UserProvider>
     <RouterProvider router={router} />
+    </UserProvider>
   </StrictMode>,
 )
