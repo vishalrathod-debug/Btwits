@@ -1,17 +1,12 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
-// import useUser from "../context/useUser";
-
+import { useContext } from "react";
+import UserContext from "../context/UserContext";
 
 export default function Login() {
   const navigate = useNavigate();
 
-  // const { user, setUser } = useUser();
-
-  // if (user) {
-  //   return <Navigate to="/" />;
-  // }
-
+  const { user, setUser } = useContext(UserContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,8 +23,8 @@ export default function Login() {
       // ✅ success
       if (res.status === 1) {
         localStorage.setItem("token", res.token);
-
-        // setUser(res.user);   
+        // also do this:
+        setUser(res.user);
         navigate("/");
       }
     } catch (error) {
@@ -39,6 +34,7 @@ export default function Login() {
       alert(message); // 👈 THIS shows "User not found"
     }
   };
+
   return (
     <div className="justify-center flex min-h-screen bg-gray-50 text-gray-900">
       {/* Left Column: Form Container */}

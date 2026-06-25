@@ -35,11 +35,11 @@ const registerUser = async (req, res) => {
         res.status(201).json({
             message: "User registered successfully",
             status:1,
-            // user: {
-            //     id: user._id,
-            //     username: user.username,
-            //     email: user.email
-            // }
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
         });
 
     } catch (error) {

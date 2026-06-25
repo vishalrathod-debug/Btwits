@@ -1,25 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/api";
+import UserContext from "../context/UserContext";
+import { useContext } from "react";
 
-function Register (){
+function Register() {
+  const { setUser } = useContext(UserContext);
 
   const navigate = useNavigate();
-  const handleSubmit=async(e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
     try {
-      await registerUser({
-        "username":data.username,
-        "email":data.email,
-        "password":data.password
-      })
-
-      navigate("/")
+      const res = await registerUser({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
+      if (res.status === 1) {
+        localStorage.setItem("token", res.token);
+        // also do this:
+        setUser(res.user);
+        navigate("/");
+      }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
   return (
     <div className="justify-center flex min-h-screen bg-gray-50 text-gray-900">
       {/* Left Column: Form Container */}
@@ -34,9 +41,9 @@ function Register (){
               Welcome back
             </h2>
             <p className="mt-2 text-sm text-gray-500">
-              Already Registered ? {" "}
+              Already Registered ?{" "}
               <span
-                onClick={()=>navigate("/login")}
+                onClick={() => navigate("/login")}
                 className="font-semibold text-blue-600 hover:text-blue-500 hover:underline"
               >
                 Sign In
@@ -88,7 +95,6 @@ function Register (){
                 >
                   Password
                 </label>
-                
               </div>
               <input
                 id="password"
@@ -170,4 +176,4 @@ function Register (){
     </div>
   );
 }
-export default Register
+export default Register;

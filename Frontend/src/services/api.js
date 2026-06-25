@@ -18,17 +18,19 @@ export const loginUser = async (data) => {
 };
 
 // ✅ Fixed: Swapped global 'axios' out for 'API', and corrected endpoint path
-// export const getMe = async () => {
-//     const token = localStorage.getItem("token");
+export const getMe = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
 
-//     const res = await API.get("/api/users/me", {
-//         headers: {
-//             Authorization: `Bearer ${token}`,
-//         },
-//     });
+    const res = await API.get("/api/users/me", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    console.log("data from get me", res)
+    return res.data;
+};
 
-//     return res.data;
-// };
 
 export const getUser = async (id) => {
     const res = await API.get(`/api/users/${id}`);

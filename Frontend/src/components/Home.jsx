@@ -1,21 +1,34 @@
 
-import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { useState } from "react";
+import { Navigate, NavLink, useNavigate } from "react-router-dom";
+import UserContext from "../context/UserContext";
 
 
 
 function Home() {
 
   const navigate = useNavigate();
-  const[user,setUser] = useState(null)
-  
+
+    const { user,loading} = useContext(UserContext);
+    
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    console.log("data from home",user)
+      if (!user) {
+      return <Navigate to="/" />;
+      }
+  
 
   const handleLogout = () => {
-    
+    localStorage.removeItem("token")
     navigate("/login");
   };
 
+  if(loading){
+    return <>
+    <h1>Loading...</h1>
+    </>
+  }
 
 
   return (

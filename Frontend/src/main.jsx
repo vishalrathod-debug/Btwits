@@ -8,6 +8,7 @@ import Login from './components/Login';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './components/Profile';
+import UserContextProvider from './context/UserContextProvider';
 
 const router = createBrowserRouter([
   {
@@ -36,8 +37,9 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    
-    <RouterProvider router={router} />
+    <UserContextProvider>
+      <RouterProvider router={router} />
+    </UserContextProvider>
     
   </StrictMode>,
 )
