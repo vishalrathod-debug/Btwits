@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 import { useContext } from "react";
 import UserContext from "../context/UserContext";
@@ -6,7 +6,7 @@ import UserContext from "../context/UserContext";
 export default function Login() {
   const navigate = useNavigate();
 
-  const { user, setUser } = useContext(UserContext);
+  const {setUser } = useContext(UserContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
