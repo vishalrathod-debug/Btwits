@@ -6,6 +6,8 @@ const { loginUser } = require("../controllers/loginController");
 const { getDataByIdController } = require("../controllers/getDataByIdController");
 const User = require("../models/user.model");
 const { authMiddleware } = require("../middleware/auth.middleware");
+const upload = require("../middleware/upload");
+const { updateProfileController } = require("../controllers/updateProfileController");
 
 console.log("User routes loaded");
 
@@ -14,6 +16,18 @@ router.post("/register", registerUser);
 
 // POST /api/users/login
 router.post("/login", loginUser);
+
+//PUT /api/users/update
+router.put(
+  "/update",
+  authMiddleware,
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "banner", maxCount: 1 },
+  ]),
+  updateProfileController
+);
+
 
 // ✅ VERY IMPORTANT: place /me BEFORE /:id
 router.get("/me", authMiddleware, async (req, res) => {

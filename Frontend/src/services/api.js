@@ -36,3 +36,16 @@ export const getUser = async (id) => {
     const res = await API.get(`/api/users/${id}`);
     return res.data;
 };
+
+export const updateUser = async (formData) => {
+  const token = localStorage.getItem("token");
+
+  const res = await API.put("/api/users/update", formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data.data;
+};

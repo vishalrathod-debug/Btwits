@@ -1,238 +1,203 @@
-import { useContext} from "react";
+import { useContext, useState } from "react";
 import UserContext from "../context/UserContext";
+import { updateUser } from "../services/api";
 
 function Profile() {
-  const { user } = useContext(UserContext);
-  // Mock initial state for the user details
+  const { user, setUser } = useContext(UserContext);
 
-  const dummyUser = {
-    username: "Sasha Zvereva",
-    website: "https://taplink.cc",
-    bio: "Software developer & UI designer based in Los Angeles.",
-    followers: "2.1m",
-    following: "116",
-    avatar:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTI0IvY5ufSEcwS2tEU8-1XK4qVmnv8uu_8JXzjuYz5g&s=10",
-    banner: "linear-gradient(to bottom right, #bfdbfe, #fef08a)",
+  // States for file uploads
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 1. Initialize state directly from context (No useEffect needed!)
+  const [form, setForm] = useState({
+    username: user?.username || "",
+    bio: user?.bio || "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleInputChange = () => {
-   
-  };
-
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    console.log("Saved Data:", user);
-    alert("Profile updated successfully!");
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    const formData = new FormData(e.target); 
+
+    if (avatarFile) formData.append("avatar", avatarFile);
+    if (bannerFile) formData.append("banner", bannerFile);
+
+    try {
+      const updatedUser = await updateUser(formData);
+      if (updatedUser) {
+        setUser(updatedUser);
+        setAvatarFile(null);
+        setBannerFile(null);
+        alert("Profile updated successfully!");
+      }
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      alert(err?.response?.data?.message || "Failed to update profile.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans">
-      {/* 1. Left Sidebar Navigation */}
+  <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="flex-1 flex flex-col min-w-0">
+      {/* 2. Using a 'key' here forces React to auto-reset the form if the user updates or changes */}
+      <form onSubmit={handleSave} key={user?.id || "profile-form"} className="w-full">
+        <main className="p-4 md:p-8 max-w-3xl w-full mx-auto space-y-6">
+          
+          {/* Header Section with Title and Save Button */}
+          <div className="flex flex-row items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">Edit Profile</h1>
+              <p className="text-sm text-slate-500 hidden sm:block">Manage your public profile settings and credentials.</p>
+            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-xl text-white shadow-sm transition-all ${
+                isSubmitting ? "bg-slate-400 cursor-not-allowed" : "bg-slate-900 hover:bg-slate-800 active:scale-98"
+              }`}
+            >
+              {isSubmitting ? "Saving changes..." : "Save changes"}
+            </button>
+          </div>
 
-      {/* 2. Main Workspace Layout */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Sticky Header */}
-
-        {/* Form Work Area */}
-        <main className="flex-1 p-4 md:p-8 max-w-4xl w-full mx-auto space-y-6">
-          {/* Card Presentation Frame */}
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-            {/* Visual Cover Banner with Top Action Overlay */}
-            <div className="h-44 w-full relative bg-linear-to-br from-blue-200 to-amber-100">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            
+            {/* 🔵 Banner Area */}
+            <div className="h-48 w-full relative bg-gradient-to-br from-blue-100 via-indigo-50 to-amber-50 group border-b border-slate-100">
+              {(bannerFile || user?.banner) && (
+                <img
+                  src={bannerFile ? URL.createObjectURL(bannerFile) : user?.banner}
+                  className="h-full w-full object-cover"
+                  alt="Profile Banner"
+                />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setBannerFile(e.target.files[0] || null)}
+                className="hidden"
+                id="bannerUpload"
+              />
               <button
                 type="button"
-                className="absolute top-4 right-4 bg-white/80 hover:bg-white backdrop-blur-xs p-2 rounded-lg text-slate-600 transition-colors shadow-xs"
+                onClick={() => document.getElementById("bannerUpload").click()}
+                className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 shadow-sm hover:bg-white transition"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+                Change Banner
               </button>
             </div>
 
-            {/* Asymmetric Profile Metadata Row */}
+            {/* 🔵 Profile Header & Identity */}
             <div className="px-6 pb-6 relative flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-100">
-              {/* Stacked Floating Ring Avatar */}
               <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16">
-                <div className="relative h-32 w-32 rounded-full bg-white p-1 shadow-md ring-4 ring-linear-to-tr from-amber-400 via-pink-500 to-purple-600">
+                
+                {/* Avatar Wrapper with integrated file input trigger */}
+                <div className="relative h-28 w-28 rounded-full bg-white p-1 shadow-md border border-slate-100 group">
                   <img
-                    src={user?.avatar ||dummyUser.avatar}
-                    alt="Profile Avatar"
+                    src={avatarFile ? URL.createObjectURL(avatarFile) : user?.avatar || "https://img.magnific.com/premium-vector/anonymous-user-circle-icon-vector-illustration-flat-style-with-long-shadow_520826-1931.jpg?w=360"}
                     className="h-full w-full object-cover rounded-full"
+                    alt="Profile Avatar"
                   />
-                </div>
-                <div className="text-center sm:text-left mb-2">
-                  <h2 className="text-2xl font-bold tracking-tight flex items-center gap-1.5 justify-center sm:justify-start">
-                    {user?.username}
-                    <span className="inline-flex text-blue-500">
-                      <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L9 10.586l3.293-3.293a1 1 0 011.414 1.414z" />
-                      </svg>
-                    </span>
-                  </h2>
-                  <p className="text-sm text-slate-500 font-medium">
-                    Update your photo and personal credentials
-                  </p>
-                </div>
-              </div>
-
-              {/* Stats & Actions Area */}
-              <div className="flex flex-col items-center sm:items-end gap-3">
-                <div className="flex gap-6 text-center sm:text-right text-sm py-1">
-                  <div>
-                    <span className="block font-bold text-slate-800">
-                      {user?.followers ||dummyUser.followers}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">
-                      followers
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block font-bold text-slate-800">
-                      {user?.following || dummyUser.following}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">
-                      following
-                    </span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setAvatarFile(e.target.files[0] || null)}
+                    className="hidden"
+                    id="avatarUpload"
+                  />
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-semibold rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-xs active:scale-98"
+                    onClick={() => document.getElementById("avatarUpload").click()}
+                    className="absolute inset-1 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-medium"
                   >
-                    Chat
+                    Change Photo
                   </button>
-                  <button
-                    onClick={handleSave}
-                    type="submit"
-                    className="px-5 py-2 text-sm font-semibold rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-md active:scale-98"
-                  >
-                    Save changes
-                  </button>
+                </div>
+
+                <div className="text-center sm:text-left mb-1">
+                  <h2 className="text-xl font-bold text-slate-900">{form.username || "New User"}</h2>
+                  <div className="flex items-center gap-3 mt-1 justify-center sm:justify-start">
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById("avatarUpload").click()}
+                      className="text-xs text-blue-600 font-medium hover:text-blue-700 transition"
+                    >
+                      Upload new
+                    </button>
+                    {(avatarFile || user?.avatar) && (
+                      <>
+                        <span className="h-3 w-px bg-slate-200" />
+                        <button
+                          type="button"
+                          onClick={() => setAvatarFile(null)}
+                          className="text-xs text-slate-500 font-medium hover:text-red-600 transition"
+                        >
+                          Reset
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Structured Settings Input Rows */}
-            <form
-              onSubmit={handleSave}
-              className="divide-y divide-slate-100 text-sm"
-            >
-              {/* Row 1: Username */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 items-center">
-                <label
-                  htmlFor="username"
-                  className="font-semibold text-slate-700"
-                >
-                  Username
-                </label>
+            {/* 🔵 Form Fields Container */}
+            <div className="divide-y divide-slate-100">
+              
+              {/* Username Field */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-6 items-center">
+                <label className="text-sm font-semibold text-slate-700">Username</label>
                 <div className="md:col-span-2">
                   <input
-                    id="username"
                     type="text"
                     name="username"
-                    value={user.username}
+                    value={form.username}
                     onChange={handleInputChange}
-                    className="w-full max-w-xl rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-xs transition-colors focus:border-blue-500 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all"
+                    placeholder="Enter your username"
+                    required
                   />
                 </div>
               </div>
 
-              {/* Row 2: Website
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 items-center">
-                <label htmlFor="website" className="font-semibold text-slate-700">Website</label>
-                <div className="md:col-span-2">
-                  <input 
-                    id="website"
-                    type="url" 
-                    name="website" 
-                    value={profile.website} 
-                    onChange={handleInputChange}
-                    className="w-full max-w-xl rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-xs transition-colors focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div> */}
-
-              {/* Row 3: Actionable Avatar Management Section */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 items-center">
-                <div>
-                  <span className="font-semibold text-slate-700 block">
-                    Your Photo
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    This will be displayed on your profile.
-                  </span>
-                </div>
-                <div className="md:col-span-2 flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200">
-                    <img
-                      src={user?.avatar||dummyUser.avatar}
-                      alt="Current Avatar Thumbnail"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    type="button"
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    Update image
-                  </button>
-                </div>
-              </div>
-
-              {/* Row 4: Bio Textarea */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 items-start">
-                <div>
-                  <label
-                    htmlFor="bio"
-                    className="font-semibold text-slate-700 block"
-                  >
-                    Your Bio
-                  </label>
-                  <span className="text-xs text-slate-400">
-                    Write a short introduction.
-                  </span>
+              {/* Bio Field */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-6 items-start">
+                <div className="space-y-0.5">
+                  <label className="text-sm font-semibold text-slate-700">Bio</label>
+                  <p className="text-xs text-slate-400 max-w-[200px]">A brief description for your profile dashboard.</p>
                 </div>
                 <div className="md:col-span-2">
                   <textarea
-                    id="bio"
                     name="bio"
                     rows="4"
-                    value={user?.bio}
+                    value={form.bio}
                     onChange={handleInputChange}
-                    className="w-full max-w-xl rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-xs transition-colors focus:border-blue-500 focus:outline-none resize-none"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:outline-none transition-all resize-none"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
               </div>
-            </form>
+
+            </div>
+
           </div>
         </main>
-      </div>
+      </form>
     </div>
-  );
+  </div>
+);
+
 }
+
 export default Profile;

@@ -1,4 +1,4 @@
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api";
 import { useContext } from "react";
 import UserContext from "../context/UserContext";
@@ -6,7 +6,7 @@ import UserContext from "../context/UserContext";
 export default function Login() {
   const navigate = useNavigate();
 
-  const {setUser } = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,10 +21,12 @@ export default function Login() {
       });
 
       // ✅ success
+
       if (res.status === 1) {
         localStorage.setItem("token", res.token);
-        // also do this:
-        setUser(res.user);
+
+        setUser(res.user); // 🔥 THIS IS THE FIX
+
         navigate("/");
       }
     } catch (error) {
