@@ -74,7 +74,7 @@ function Profile() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             
             {/* 🔵 Banner Area */}
-            <div className="h-48 w-full relative bg-gradient-to-br from-blue-100 via-indigo-50 to-amber-50 group border-b border-slate-100">
+            <div className="h-48 w-full relative bg-linear-to-br from-blue-100 via-indigo-50 to-amber-50 group border-b border-slate-100">
               {(bannerFile || user?.banner) && (
                 <img
                   src={bannerFile ? URL.createObjectURL(bannerFile) : user?.banner}
@@ -175,7 +175,7 @@ function Profile() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-6 items-start">
                 <div className="space-y-0.5">
                   <label className="text-sm font-semibold text-slate-700">Bio</label>
-                  <p className="text-xs text-slate-400 max-w-[200px]">A brief description for your profile dashboard.</p>
+                  <p className="text-xs text-slate-400 max-w-50">A brief description for your profile dashboard.</p>
                 </div>
                 <div className="md:col-span-2">
                   <textarea
