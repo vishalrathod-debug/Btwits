@@ -28,8 +28,14 @@ const postSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    isDeleted: {
+    type: Boolean,
+    default: false
+    }
 },
     { timestamps: true }
 );
+postSchema.index({ user: 1 });
+postSchema.index({ createdAt: -1 });
 const Post = mongoose.model("Post", postSchema);
 module.exports = Post;
