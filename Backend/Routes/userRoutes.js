@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-const { registerUser } = require("../controllers/userController");
-const { loginUser } = require("../controllers/loginController");
-const { getDataByIdController } = require("../controllers/getDataByIdController");
-const User = require("../models/user.model");
+const { registerUser } = require("../controllers/UserControllers/userController");
+const { loginUser } = require("../controllers/UserControllers/loginController");
+const { getDataByIdController } = require("../controllers/UserControllers/getDataByIdController");
 const { authMiddleware } = require("../middleware/auth.middleware");
 const upload = require("../middleware/upload");
-const { updateProfileController } = require("../controllers/updateProfileController");
+const { updateProfileController } = require("../controllers/UserControllers/updateProfileController");
+const getMeController = require("../controllers/UserControllers/getMeController");
 
 console.log("User routes loaded");
 
@@ -30,17 +30,13 @@ router.put(
 
 
 // ✅ VERY IMPORTANT: place /me BEFORE /:id
-router.get("/me", authMiddleware, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).select("-password");
-
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({ message: "Server error" });
-    }
-});
+// GET /api/users/me
+router.get("/me", authMiddleware, getMeController);
 
 // GET /api/users/:id
 router.get("/:id", getDataByIdController);
+
+
+
 
 module.exports = router;

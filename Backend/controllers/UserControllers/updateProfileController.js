@@ -1,6 +1,6 @@
-const cloudinary = require("../config/cloudinary");
+const cloudinary = require("../../config/cloudinary");
 const fs = require("fs");
-const User = require("../models/user.model");
+const User = require("../../models/user.model");
 
 const updateProfileController = async (req, res) => {
   try {

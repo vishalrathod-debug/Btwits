@@ -16,10 +16,16 @@ const postSchema = new mongoose.Schema({
         trim: true,
         maxlength: 1000
     },
-    image: {
-        type: String, // Cloudinary URL
-        default: "",
-    },
+    media: [
+        {
+            url: String,
+            type: {
+                type: String,
+                enum: ["image", "video"]
+            }
+        }
+    ],
+
     likesCount: {
         type: Number,
         default: 0,
@@ -29,8 +35,8 @@ const postSchema = new mongoose.Schema({
         default: 0,
     },
     isDeleted: {
-    type: Boolean,
-    default: false
+        type: Boolean,
+        default: false
     }
 },
     { timestamps: true }
@@ -38,4 +44,4 @@ const postSchema = new mongoose.Schema({
 postSchema.index({ user: 1 });
 postSchema.index({ createdAt: -1 });
 const Post = mongoose.model("Post", postSchema);
-module.exports = Post;
+module.exports = Post

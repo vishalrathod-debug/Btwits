@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const dbConnection = require('./config/db');
 const userRoutes = require("./routes/userRoutes");
+const postRoutes = require("./routes/postRoutes");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 // start server function
 const startServer = async () => {

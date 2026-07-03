@@ -6,6 +6,8 @@ import Register from "./components/Register";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import CreatePost from "./components/createPost";
+
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/post" element={<CreatePost />} />
         </Route>
       </Route>
 

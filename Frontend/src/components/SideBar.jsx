@@ -37,6 +37,9 @@ export default function SideBar({ isOpen, setIsOpen, user, handleLogout }) {
         <NavLink to="/profile" className={linkClass}>
           Profile
         </NavLink>
+        <NavLink to="/post" className={linkClass}>
+          Create Post
+        </NavLink>
       </nav>
 
       {/* Sidebar Footer */}
