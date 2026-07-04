@@ -3,21 +3,26 @@ const router = express.Router();
 
 const { registerUser } = require("../controllers/UserControllers/userController");
 const { loginUser } = require("../controllers/UserControllers/loginController");
-const { getDataByIdController } = require("../controllers/UserControllers/getDataByIdController");
 const { authMiddleware } = require("../middleware/auth.middleware");
 const upload = require("../middleware/upload");
+
 const { updateProfileController } = require("../controllers/UserControllers/updateProfileController");
 const getMeController = require("../controllers/UserControllers/getMeController");
+const getUserProfileController = require("../controllers/UserControllers/getUserProfileController");
+
+
+const getFollowersController = require("../controllers/UserControllers/getFollowersController");
+const getFollowingController = require("../controllers/UserControllers/getFollowingController");
+const searchUsersController = require("../controllers/UserControllers/searchUsersController");
+
 
 console.log("User routes loaded");
 
-// POST /api/users/register
+// 🔐 AUTH
 router.post("/register", registerUser);
-
-// POST /api/users/login
 router.post("/login", loginUser);
 
-//PUT /api/users/update
+// 🔄 UPDATE PROFILE
 router.put(
   "/update",
   authMiddleware,
@@ -28,15 +33,16 @@ router.put(
   updateProfileController
 );
 
-
-// ✅ VERY IMPORTANT: place /me BEFORE /:id
-// GET /api/users/me
+// 👤 CURRENT USER
 router.get("/me", authMiddleware, getMeController);
 
-// GET /api/users/:id
-router.get("/:id", getDataByIdController);
+// 🔥 USER PROFILE (VERY IMPORTANT: KEEP BEFORE ANY :id ROUTE)
+router.get("/profile/:id", authMiddleware, getUserProfileController);
 
+// ADD THESE
+router.get("/:id/followers", getFollowersController);
+router.get("/:id/following", getFollowingController);
 
-
+router.get("/search", authMiddleware, searchUsersController);
 
 module.exports = router;

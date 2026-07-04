@@ -5,24 +5,26 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import UserContext from "../context/UserContext";
 import { 
   getAllPosts, 
   toggleLike, 
   toggleFollow, 
-  getComments, // 👈 Added
-  addComment   // 👈 Added
+  getComments, 
+  addComment 
 } from "../services/api";
+import CommentSection from "./commentSection";
 
 function Home() {
   const { user, loading } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(false);
-  const [expandedPostId, setExpandedPostId] = useState(null); // 👈 Tracks open comment section
+  const [expandedPostId, setExpandedPostId] = useState(null);
 
   const observer = useRef();
 
@@ -65,7 +67,7 @@ function Home() {
     [loadingPosts, hasMore, fetchPosts, page]
   );
 
-  // 🔥 LIKE HANDLER
+  // 🔥 LIKE HANDLER (Optimistic Update)
   const handleLike = async (postId) => {
     const toggleLikeState = (list) =>
       list.map((p) =>
@@ -84,11 +86,11 @@ function Home() {
       await toggleLike(postId);
     } catch (err) {
       console.error("Like error:", err);
-      setPosts((prev) => toggleLikeState(prev));
+      setPosts((prev) => toggleLikeState(prev)); // Revert state on failure
     }
   };
 
-  // 🔥 FOLLOW HANDLER
+  // 🔥 FOLLOW HANDLER (Optimistic Update)
   const handleFollow = async (targetUserId) => {
     const toggleFollowState = (list) =>
       list.map((p) =>
@@ -103,7 +105,7 @@ function Home() {
       await toggleFollow(targetUserId);
     } catch (err) {
       console.error("Follow error:", err);
-      setPosts((prev) => toggleFollowState(prev));
+      setPosts((prev) => toggleFollowState(prev)); // Revert state on failure
     }
   };
 
@@ -167,10 +169,14 @@ function Home() {
                     <img
                       src={post.user?.avatar || "https://via.placeholder.com/40"}
                       alt={post.user?.username}
-                      className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-50 shrink-0"
+                      onClick={() => navigate(`/profile/${post.user?._id}`)}
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-50 shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                     />
                     <div className="flex flex-col">
-                      <p className="font-bold text-gray-900 text-[15px] hover:underline cursor-pointer">
+                      <p 
+                        onClick={() => navigate(`/profile/${post.user?._id}`)}
+                        className="font-bold text-gray-900 text-[15px] hover:underline cursor-pointer"
+                      >
                         {post.user?.username}
                       </p>
                       <p className="text-xs text-gray-400 font-medium">
@@ -200,7 +206,7 @@ function Home() {
                   {post.content}
                 </p>
 
-                {/* MEDIA */}
+                {/* MEDIA LAYOUT */}
                 {post.media?.length > 0 && (
                   <div className="mb-4">
                     {post.media.length === 1 ? (
@@ -209,13 +215,13 @@ function Home() {
                           <video
                             src={post.media[0].url || post.media[0]}
                             controls
-                            className="w-full h-full max-h-[600px] object-contain bg-black"
+                            className="w-full h-full max-h-150 object-contain bg-black"
                           />
                         ) : (
                           <img
                             src={post.media[0].url || post.media[0]}
                             alt="Post media"
-                            className="w-full h-auto max-h-[600px] object-contain"
+                            className="w-full h-auto max-h-150 object-contain"
                           />
                         )}
                       </div>
@@ -267,7 +273,7 @@ function Home() {
                     </span>
                   </button>
 
-                  {/* COMMENT BUTTON (NOW INTERACTIVE 💬) */}
+                  {/* COMMENT BUTTON */}
                   <button 
                     onClick={() => setExpandedPostId(isCommentsOpen ? null : post._id)}
                     className="flex items-center gap-2 group transition-colors"
@@ -292,12 +298,12 @@ function Home() {
                   </button>
                 </div>
 
-                {/* 💬 EXPANDABLE COMMENT SECTION BLOCK */}
+                {/* EXPANDABLE COMMENT SECTION BLOCK */}
                 {isCommentsOpen && (
-                  <CommentSection 
+                  <CommentSection
                     postId={post._id}
+                    navigate={navigate}
                     onCommentAdded={() => {
-                      // Optimistically increment comment counter locally
                       setPosts(prev => prev.map(p => p._id === post._id ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p));
                     }}
                   />
@@ -327,109 +333,4 @@ function Home() {
     </div>
   );
 }
-
-// 🧱 ISOLATED INTERNAL HOOKS AND SUB-COMPONENT TO MANAGE UNIQUE FORM STATES CLEANLY
-function CommentSection({ postId, onCommentAdded }) {
-  const [comments, setComments] = useState([]);
-  const [text, setText] = useState("");
-  const [loadingComments, setLoadingComments] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  // Fetch comments array immediately when tray mounts
-  useEffect(() => {
-    let isMounted = true;
-    setLoadingComments(true);
-    
-    getComments(postId)
-      .then((data) => {
-        if (!isMounted) return;
-        // Standard payload array handling setup
-        setComments(data.comments || data || []);
-      })
-      .catch((err) => console.error("Error fetching comments:", err))
-      .finally(() => {
-        if (isMounted) setLoadingComments(false);
-      });
-
-    return () => { isMounted = false; };
-  }, [postId]);
-
-  const handleSubmitComment = async (e) => {
-    e.preventDefault();
-    if (!text.trim() || submitting) return;
-
-    try {
-      setSubmitting(true);
-      const newComment = await addComment(postId, text);
-      
-      setComments((prev) => [...prev, newComment]);
-      setText("");
-      if (onCommentAdded) onCommentAdded();
-    } catch (err) {
-      console.error("Post comment failure:", err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="mt-4 pt-4 border-t border-gray-100 space-y-4 animate-fadeIn">
-      {/* Input Field Strip */}
-      <form onSubmit={handleSubmitComment} className="flex items-center gap-2">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write a public comment..."
-          className="w-full bg-gray-50 text-sm border border-gray-200 rounded-xl px-3.5 py-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-800 transition-all"
-        />
-        <button
-          type="submit"
-          disabled={!text.trim() || submitting}
-          className="bg-blue-500 text-white text-sm font-bold h-9 px-4 rounded-xl hover:bg-blue-600 disabled:bg-gray-200 disabled:text-gray-400 active:scale-95 transition-all cursor-pointer shrink-0"
-        >
-          {submitting ? "..." : "Post"}
-        </button>
-      </form>
-
-      {/* Dynamic View Window */}
-      {loadingComments ? (
-        <div className="flex items-center gap-2 py-1 justify-center">
-          <div className="h-3 w-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-semibold text-gray-400">Loading threads...</p>
-        </div>
-      ) : comments.length === 0 ? (
-        <p className="text-xs text-gray-400 italic text-center py-1 bg-gray-50/50 rounded-lg">
-          No commentary here yet. Start the conversation!
-        </p>
-      ) : (
-        <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1 scrollbar-thin">
-          {comments.map((comment) => (
-            <div key={comment._id} className="flex gap-2.5 bg-gray-50/80 p-2.5 rounded-xl border border-gray-100/50">
-              <img 
-                src={comment.user?.avatar || "https://via.placeholder.com/32"} 
-                alt="Commenter user avatar" 
-                className="w-7 h-7 rounded-full object-cover ring-2 ring-white shrink-0 mt-0.5"
-              />
-              <div className="flex flex-col flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-bold text-gray-900 text-xs hover:underline cursor-pointer">
-                    @{comment.user?.username || "anonymous"}
-                  </span>
-                  <span className="text-[10px] text-gray-400 font-medium">
-                    {comment.createdAt && new Date(comment.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-                <p className="text-gray-700 text-xs mt-0.5 leading-relaxed break-words whitespace-pre-wrap">
-                  {comment.text || comment.content}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default Home;

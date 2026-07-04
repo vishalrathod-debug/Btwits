@@ -94,8 +94,31 @@ export const deleteComment = async (commentId) => {
 
 //
 // 👤 USER PROFILE
-//
-export const getUserProfile = async (userId) => {
-  const res = await API.get(`/api/users/profile/${userId}`);
+export const getUserProfile = async (id) => {
+  const res = await API.get(`/api/users/profile/${id}`);
+  return res.data;
+};
+// // 🔥 GET USER BY ID
+// export const getUserById = async (userId) => {
+//   try {
+//     const res = await API.get(`/api/users/${userId}`);
+//     return res.data; // or res.data.user (depends on backend)
+//   } catch (error) {
+//     console.error("Get user error:", error);
+//     throw error;
+//   }
+// };
+
+export const getFollowers = async (id) => {
+  const res = await API.get(`/api/users/${id}/followers`);
+  return res.data;
+};
+
+export const getFollowing = async (id) => {
+  const res = await API.get(`/api/users/${id}/following`);
+  return res.data;
+};
+export const searchUsers = async (query) => {
+  const res = await API.get(`/api/users/search?q=${query}`);
   return res.data;
 };

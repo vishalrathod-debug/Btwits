@@ -42,7 +42,13 @@ const loginUser = async (req, res) => {
             message: "Login successful",
             status: 1,
             token,
-            user: user
+            user: {
+                _id: user._id,        // ✅ consistent
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar || "",
+                bio: user.bio || "",
+            },
         });
 
     } catch (error) {
@@ -52,4 +58,4 @@ const loginUser = async (req, res) => {
         });
     }
 };
-module.exports ={loginUser}
+module.exports = { loginUser }

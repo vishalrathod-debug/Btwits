@@ -1,43 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UserContext from "./UserContext";
-import { useEffect } from "react";
 import { getMe } from "../services/api";
 
 const UserContextProvider = ({ children }) => {
-  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
- 
+  // 🔥 fetch user (used in login also)
+  const fetchUser = async () => {
+    try {
+      const data = await getMe();
+      setUser(data);
+    } catch (err) {
+      console.log("Auth error:", err);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const initUser = async () => {
+    const token = localStorage.getItem("token");
 
-      try {
-        const data = await getMe();
-        setUser(data);
-        console.log("data from useefect useprovider",data)
-      } catch (error) {
-        console.log("Auth error:", error);
-        // ❌ invalid token → clean up
-        // localStorage.removeItem("token");
-        
-      } finally {
-        // ✅ ALWAYS stop loading
-        setLoading(false);
-      }
-    };
-    console.log("running inituser")
-    initUser();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-
-
+    fetchUser();
   }, []);
 
   return (
-    <>
-      <UserContext.Provider value={{ user, setUser, loading, setLoading }}>
-        {children}
-      </UserContext.Provider>
-    </>
+    <UserContext.Provider value={{ user, setUser, loading, fetchUser }}>
+      {children}
+    </UserContext.Provider>
   );
 };
+
 export default UserContextProvider;

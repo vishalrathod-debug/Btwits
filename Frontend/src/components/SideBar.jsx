@@ -40,6 +40,9 @@ export default function SideBar({ isOpen, setIsOpen, user, handleLogout }) {
         <NavLink to="/post" className={linkClass}>
           Create Post
         </NavLink>
+        <NavLink to="/search" className={linkClass}>
+          Search
+        </NavLink>
       </nav>
 
       {/* Sidebar Footer */}

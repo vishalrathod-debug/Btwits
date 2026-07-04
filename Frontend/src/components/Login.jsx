@@ -7,35 +7,40 @@ export default function Login() {
   const navigate = useNavigate();
 
   const { setUser } = useContext(UserContext);
+  const { fetchUser } = useContext(UserContext);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await loginUser({
-        email: data.email,
-        password: data.password,
-      });
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData.entries());
 
-      // ✅ success
+  try {
+    const res = await loginUser({
+      email: data.email,
+      password: data.password,
+    });
 
-      if (res.status === 1) {
-        localStorage.setItem("token", res.token);
+    if (res.status === 1) {
+      // ✅ store token
+      localStorage.setItem("token", res.token);
 
-        setUser(res.user); // 🔥 THIS IS THE FIX
+      // ❌ REMOVE THIS
+      // setUser(res.user);
 
-        navigate("/");
-      }
-    } catch (error) {
-      // ❌ THIS is where "User not found" comes
-      const message = error.response?.data?.message || "Something went wrong";
+      // ✅ ALWAYS FETCH USER FROM BACKEND
+      await fetchUser();
 
-      alert(message); // 👈 THIS shows "User not found"
+      navigate("/");
     }
-  };
+  } catch (error) {
+    const message =
+      error.response?.data?.message || "Something went wrong";
+    alert(message);
+  }
+};
+
 
   return (
     <div className="justify-center flex min-h-screen bg-gray-50 text-gray-900">

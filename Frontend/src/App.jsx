@@ -7,6 +7,8 @@ import Profile from "./components/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import CreatePost from "./components/createPost";
+import UserProfile from "./components/UserProfile";
+import Search from "./components/Search";
 
 
 function App() {
@@ -19,10 +21,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/post" element={<CreatePost />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/profile/:id" element={<UserProfile/>} />
         </Route>
       </Route>
 
       {/* Public routes */}
+      
       <Route path="/login" element={<Login/>} />
       <Route path="/register" element={<Register />} />
 
