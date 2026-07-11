@@ -9,6 +9,10 @@ const postRoutes = require("./Routes/postRoutes");
 
 const app = express();
 
+app.use(cors({
+  origin: "https://btwits.vercel.app",
+  credentials: true
+}));
 
 // middleware
 app.use(cors());
